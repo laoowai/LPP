@@ -9,7 +9,7 @@ main.py: This Python script solves a warehouse distribution problem using linear
 # Getting Started
 
 ```
-**sudo easy_install -U pulp**
+sudo easy_install -U pulp
 ```
 
 ```
