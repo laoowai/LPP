@@ -1,11 +1,16 @@
 # LPP
 The repository contains Python scripts implementing Linear Programming methods to solve logistics distribution problems. The scripts utilize the PuLP library, which is a free open-source software written in Python. PuLP is used for modeling linear and integer programs.
 
-**PuLP**
-$ sudo easy_install -U pulp
+# Repository Structure
+
+main.py: This Python script solves a warehouse distribution problem using linear programming. The problem is to minimize the transportation cost from warehouses to customers, given the supply constraints at each warehouse and the demand at each customer.
 
 
 # Getting Started
+
+```
+**sudo easy_install -U pulp**
+```
 
 ```
 # Clone the repository
