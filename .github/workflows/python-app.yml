@@ -1,39 +1,43 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+from pulp import *
 
-name: Python application
+# Create the 'prob' variable to contain the problem data
+prob = LpProblem("Warehouse Distribution", LpMinimize)
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+# Decision variables
+warehouses = ['W1', 'W2', 'W3']
+customers = ['C1', 'C2', 'C3', 'C4']
 
-permissions:
-  contents: read
+choices = LpVariable.dicts("Choice", (warehouses, customers), lowBound=0, cat='Integer')
 
-jobs:
-  build:
+# Objective Function
+prob += lpSum([20*choices['W1']['C1'], 40*choices['W1']['C2'], 70*choices['W1']['C3'], 50*choices['W1']['C4'],
+               100*choices['W2']['C1'], 60*choices['W2']['C2'], 90*choices['W2']['C3'], 80*choices['W2']['C4'],
+               10*choices['W3']['C1'], 110*choices['W3']['C2'], 30*choices['W3']['C3'], 200*choices['W3']['C4']])
 
-    runs-on: ubuntu-latest
+# Constraints
+# Supply Constraints
+prob += lpSum([choices['W1'][j] for j in customers]) <= 400
+prob += lpSum([choices['W2'][j] for j in customers]) <= 1500
+prob += lpSum([choices['W3'][j] for j in customers]) <= 900
 
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pytest
+# Demand Constraints
+prob += lpSum([choices[i]['C1'] for i in warehouses]) >= 700
+prob += lpSum([choices[i]['C2'] for i in warehouses]) >= 600
+prob += lpSum([choices[i]['C3'] for i in warehouses]) >= 1000
+prob += lpSum([choices[i]['C4'] for i in warehouses]) >= 500
+
+# The problem data is written to an .lp file
+prob.writeLP("WarehouseDistribution.lp")
+
+# The problem is solved using PuLP's choice of Solver
+prob.solve()
+
+# The status of the solution is printed to the screen
+print("Status:", LpStatus[prob.status])
+
+# Each of the variables is printed with its resolved optimum value
+for v in prob.variables():
+    print(v.name, "=", v.varValue)
+
+# The optimized objective function value (Total Cost) is printed to the screen
+print("Total Cost = ", value(prob.objective))
