@@ -1,4 +1,4 @@
-# LPP
+# Warehouse distribution problem (LPP)
 The repository contains Python scripts implementing Linear Programming methods to solve logistics distribution problems. The scripts utilize the PuLP library, which is a free open-source software written in Python. PuLP is used for modeling linear and integer programs.
 
 # Repository Structure
